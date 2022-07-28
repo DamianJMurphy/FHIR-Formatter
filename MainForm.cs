@@ -23,7 +23,15 @@ namespace FHIR_Formatter
             {
                 return;
             }
-            OutputTextBox.Text = Converter.ToJson(InputTextBox.Text, inputForm);
+            string output = Converter.ToJson(InputTextBox.Text, inputForm);
+            if (string.IsNullOrEmpty(output))
+            {
+                OutputTextBox.Text = "No FHIR resource found";
+            }
+            else
+            {
+                OutputTextBox.Text = output;
+            }
             needsSaving = true;
             lastConversion = "json";
         }
@@ -34,7 +42,14 @@ namespace FHIR_Formatter
             {
                 return;
             }
-            OutputTextBox.Text = Converter.ToXml(InputTextBox.Text, inputForm);
+            string output = Converter.ToXml(InputTextBox.Text, inputForm);
+            if (string.IsNullOrEmpty(output))
+            {
+                OutputTextBox.Text = "No FHIR resource found";
+            } else
+            {
+                OutputTextBox.Text = output;
+            }
             needsSaving = true;
             lastConversion = "xml";
         }
@@ -48,6 +63,7 @@ namespace FHIR_Formatter
             {
                 string filePath = openFile.FileName;
                 inputFileName = filePath;
+
                 using StreamReader reader = new(filePath);
                 InputTextBox.Text = reader.ReadToEnd();
                 if (InputTextBox.Text.StartsWith("{"))
@@ -69,6 +85,28 @@ namespace FHIR_Formatter
             OutputTextBox.Text = String.Empty;
         }
 
+        private static void HandleDirectory(string inpath, string outpath)
+        {
+            DirectoryInfo directory = new(inpath);
+            if (MessageBox.Show("Convert all XML in " + inpath + " to JSON ?", "Convert directory", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                IEnumerable<FileInfo> files = directory.EnumerateFiles();
+                foreach (FileInfo f in files)
+                {
+                    if (f.FullName.EndsWith(".xml") || f.FullName.EndsWith(".XML"))
+                    {
+                        using StreamReader reader = new(f.FullName);
+                        string s = reader.ReadToEnd();
+                        string j = Converter.ToJson(s, "xml");
+
+                        string outname = RetypeFileName(f.Name, "json");
+                        using StreamWriter streamWriter = new(outpath + Path.DirectorySeparatorChar + outname);
+                        streamWriter.Write(j);
+                    }
+                }
+            }
+        }
+
         private static string RetypeFileName(string name, string type)
         {
             if (string.IsNullOrEmpty(name))
@@ -85,7 +123,7 @@ namespace FHIR_Formatter
             {
                 return name;
             }
-            string body = name.Substring(0, dot + 1);
+            string body = name[..(dot + 1)];
             return body + type;
         }
 
@@ -118,6 +156,36 @@ namespace FHIR_Formatter
                 }
             }
             Application.Exit();
+        }
+
+        private void DirectoryMenuItem_Click(object sender, EventArgs e)
+        {
+            using FolderBrowserDialog openFile = new();
+            openFile.ShowNewFolderButton = false;
+            openFile.Description = "Source directory";
+            openFile.UseDescriptionForTitle = true;
+            if (openFile.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            string filePath = openFile.SelectedPath;
+            if (!Directory.Exists(filePath))
+            {
+                return;
+            }
+            using FolderBrowserDialog saveFile = new();
+            saveFile.ShowNewFolderButton = true;
+            saveFile.Description = "Output directory";
+            saveFile.UseDescriptionForTitle = true;
+            if (saveFile.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            string outPath = saveFile.SelectedPath;
+
+            this.Cursor = Cursors.WaitCursor;
+            HandleDirectory(filePath, outPath);
+            this.Cursor = Cursors.Default;
         }
     }
 }

@@ -32,6 +32,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DirectoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,6 +68,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.DirectoryMenuItem,
             this.saveToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
@@ -80,6 +82,13 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
+            // 
+            // DirectoryMenuItem
+            // 
+            this.DirectoryMenuItem.Name = "DirectoryMenuItem";
+            this.DirectoryMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.DirectoryMenuItem.Text = "Directory";
+            this.DirectoryMenuItem.Click += new System.EventHandler(this.DirectoryMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
@@ -232,5 +241,6 @@
         private ToolStripMenuItem xMLToolStripMenuItem;
         private TextBox InputTextBox;
         private TextBox OutputTextBox;
+        private ToolStripMenuItem DirectoryMenuItem;
     }
 }

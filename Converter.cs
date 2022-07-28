@@ -15,10 +15,14 @@ namespace FHIR_Formatter
             Resource resource;
             if (inForm.Equals("json"))
             {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 resource = FromJson(input);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             } else
             {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 resource = FromXml(input);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             }
             SerializerSettings settings = new()
             {
@@ -32,7 +36,7 @@ namespace FHIR_Formatter
 
         internal static string ToJson(string input, string inForm)
         {
-            Resource resource;
+            Resource? resource;
             if (inForm.Equals("json"))
             {
                 resource = FromJson(input);
@@ -40,6 +44,10 @@ namespace FHIR_Formatter
             else
             {
                 resource = FromXml(input);
+            }
+            if (resource == null)
+            {
+                return String.Empty;
             }
             SerializerSettings settings = new()
             {
@@ -50,16 +58,30 @@ namespace FHIR_Formatter
             return serializer.SerializeToString(resource);
         }
 
-        private static Resource FromJson(string input)
+        private static Resource? FromJson(string input)
         {
-            FhirJsonParser parser = new();
-            return parser.Parse<Resource>(input);
+            try
+            {
+                FhirJsonParser parser = new();
+                return parser.Parse<Resource>(input);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        private static Resource FromXml(string input)
+        private static Resource? FromXml(string input)
         {
-            FhirXmlParser parser = new();
-            return parser.Parse<Resource>(input);
+            try
+            {
+                FhirXmlParser parser = new();
+                return parser.Parse<Resource>(input);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
